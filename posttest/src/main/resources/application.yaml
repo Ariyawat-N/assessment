@@ -12,3 +12,6 @@ spring:
     password: ${DB_USERNAME}
 server:
     port: 8888
+logging:
+  level:
+    org.springframework.security: DEBUG
