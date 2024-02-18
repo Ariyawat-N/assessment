@@ -13,10 +13,11 @@ import lombok.Setter;
 public class Lottery {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-//    @Column(name = "ticker_number")
-    private String tickerNumber;
-    private double price;
+    @Column(length = 6)
+    private String ticket;
+    private Integer price;
+    private Integer amount;
 
 }

@@ -1,7 +1,7 @@
-package com.kbtg.bootcamp.posttest.Controller;
+package com.kbtg.bootcamp.posttest.controller;
 
-import com.kbtg.bootcamp.posttest.Repository.UserRepository;
-import com.kbtg.bootcamp.posttest.entity.Users;
+import com.kbtg.bootcamp.posttest.entity.User;
+import com.kbtg.bootcamp.posttest.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,12 +15,12 @@ public class UserController {
     }
 
     @GetMapping
-    public String listAllTickets(){
-        return  " Hello ";
+    public String listAllTickets() {
+        return " Hello ";
     }
 
     @PostMapping
-    public Users createUser(@RequestBody Users users) {
-         return  this.userRepository.save(users);
+    public User createUser(@RequestBody User user) {
+        return this.userRepository.save(user);
     }
 }

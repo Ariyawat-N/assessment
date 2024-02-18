@@ -1,4 +1,4 @@
-package com.kbtg.bootcamp.posttest.Repository;
+package com.kbtg.bootcamp.posttest.repository;
 
 import com.kbtg.bootcamp.posttest.entity.Lottery;
 import org.springframework.data.jpa.repository.JpaRepository;

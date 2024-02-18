@@ -1,10 +1,14 @@
 spring:
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${db_username}
-    password: ${db_password}
   jpa:
+    database: POSTGRESQL
+    show-sql: true
     hibernate:
       ddl-auto: update
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+    url: ${DATABASE_URL}
+    username: ${DB_PASSWORD}
+    password: ${DB_USERNAME}
 server:
     port: 8888
