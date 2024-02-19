@@ -1,4 +1,4 @@
-package com.kbtg.bootcamp.posttest.dto;
+package com.kbtg.bootcamp.posttest.lottery.dto;
 
 import lombok.*;
 
