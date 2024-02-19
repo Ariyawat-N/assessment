@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LotteryResponseDto {
-    private List<String> tickets;
+    private String ticket;
 
 }

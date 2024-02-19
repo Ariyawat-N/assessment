@@ -15,7 +15,7 @@ import lombok.*;
 public class Lottery {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
     @Size(min = 6, max = 6)
     private String ticket;
