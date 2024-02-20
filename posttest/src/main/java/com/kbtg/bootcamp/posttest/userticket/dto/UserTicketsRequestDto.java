@@ -12,7 +12,5 @@ import java.util.List;
 @Getter
 @Setter
 public class UserTicketsRequestDto {
-    private List<String> tickets;
-    private Integer count;
-    private Integer cost;
+    private Long id;
 }

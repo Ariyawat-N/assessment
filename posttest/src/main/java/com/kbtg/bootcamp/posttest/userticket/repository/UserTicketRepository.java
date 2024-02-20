@@ -1,11 +1,12 @@
 package com.kbtg.bootcamp.posttest.userticket.repository;
 
 import com.kbtg.bootcamp.posttest.userticket.entity.UserTicket;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface UserTicketRepository {
+public interface UserTicketRepository extends JpaRepository<UserTicket, Long> {
 
     List<UserTicket> findByUserId(String userId);
     @Query(
