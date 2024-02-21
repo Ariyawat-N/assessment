@@ -1,11 +1,13 @@
 package com.kbtg.bootcamp.posttest.userticket.service;
 
+import com.kbtg.bootcamp.posttest.lottery.dto.LotteryResponseDto;
 import com.kbtg.bootcamp.posttest.lottery.entity.Lottery;
 import com.kbtg.bootcamp.posttest.lottery.exception.LotteryUnavailableException;
 import com.kbtg.bootcamp.posttest.lottery.repository.LotteryRepository;
 import com.kbtg.bootcamp.posttest.userticket.dto.UserTicketResponseDto;
 import com.kbtg.bootcamp.posttest.userticket.dto.UserTicketsRequestDto;
 import com.kbtg.bootcamp.posttest.userticket.entity.UserTicket;
+import com.kbtg.bootcamp.posttest.userticket.exception.InvalidUserTicketException;
 import com.kbtg.bootcamp.posttest.userticket.repository.UserTicketRepository;
 import org.springframework.stereotype.Service;
 
@@ -69,4 +71,21 @@ public class UserTicketService {
     }
 
 
+    public LotteryResponseDto deleteLotteriesByUserId(String userId, String ticketId) {
+        List<UserTicket> byUser = userTicketRepository.findByUserIdAndTicketId(userId, ticketId);
+        if (!byUser.isEmpty()) {
+            userTicketRepository.delete(byUser.get(0));
+            Optional<Lottery> optional = lotteryRepository.findById(ticketId);
+            if(optional.isPresent()) {
+                Lottery lottery = optional.get();
+                lottery.setAmount(1);
+                lotteryRepository.save(lottery);
+                return new LotteryResponseDto(ticketId);
+            }else{
+                throw new InvalidUserTicketException("Invalid userId or ticketId");
+            }
+        } else {
+            throw new InvalidUserTicketException("Invalid userId or ticketId");
+        }
+    }
 }

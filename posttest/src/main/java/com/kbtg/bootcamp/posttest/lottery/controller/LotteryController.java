@@ -19,7 +19,7 @@ public class LotteryController {
         this.lotteryService = lotteryService;
     }
 
-    //Create
+    //Create lottery
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/lotteries")
@@ -29,7 +29,7 @@ public class LotteryController {
     }
 
 
-    //Read
+    //List all lotteries
     @GetMapping("/lotteries")
     public ResponseEntity<LotteryListResponseDto> listAllLotteries() {
         return new ResponseEntity<>(lotteryService.listAllLotteries(),HttpStatus.OK);
