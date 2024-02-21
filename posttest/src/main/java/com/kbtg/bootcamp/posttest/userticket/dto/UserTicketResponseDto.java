@@ -14,5 +14,5 @@ import java.util.List;
 public class UserTicketResponseDto {
     private List<String> tickets;
     private Integer count;
-    private Integer cost;
+    private Integer totalPrice;
 }
