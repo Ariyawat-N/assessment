@@ -1,0 +1,78 @@
+package com.kbtg.bootcamp.posttest.userticket.service;
+
+import com.kbtg.bootcamp.posttest.lottery.dto.LotteryResponseDto;
+import com.kbtg.bootcamp.posttest.userticket.controller.UserTicketController;
+import com.kbtg.bootcamp.posttest.userticket.dto.UserTicketResponseDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.aot.DisabledInAotMode;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Arrays;
+
+import static org.mockito.Mockito.when;
+
+@ContextConfiguration(classes = {UserTicketController.class})
+@ExtendWith(SpringExtension.class)
+@DisabledInAotMode
+public class UserTicketServiceTest {
+    public static final String TICKET = "012345";
+    public static final String USER_ID = "0653214987";
+    public static final String USER_ID_INVALID = "xxxxxxxxxx";
+    @Autowired
+    private UserTicketController userTicketController;
+
+    @MockBean
+    private UserTicketService userTicketService;
+
+    @Test
+    @DisplayName("should return list lottery when get by userId")
+    void testGetLotteriesByUserId() throws Exception {
+        // Arrange
+        UserTicketResponseDto userTicketResponseDto = new UserTicketResponseDto();
+        userTicketResponseDto.setTickets(Arrays.asList("012345"));
+        userTicketResponseDto.setTotalPrice(80);
+        userTicketResponseDto.setCount(1);
+        when(userTicketService.getLotteriesByUserId(Mockito.<String>any()))
+                .thenReturn(userTicketResponseDto);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/{userId}/lotteries", USER_ID);
+
+        // Act and Assert
+        MockMvcBuilders.standaloneSetup(userTicketController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.content().string("{\"tickets\":[\"012345\"],\"count\":1,\"totalPrice\":80}"));
+    }
+
+
+    @Test
+    @DisplayName("should return ticket when delete success")
+    void testDeleteLotteriesByUserId() throws Exception {
+        // Arrange
+        when(userTicketService.deleteLotteriesByUserId(Mockito.<String>any(), Mockito.<String>any()))
+                .thenReturn(new LotteryResponseDto(TICKET));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.delete("/users/{userId}/lotteries/{ticketId}",
+                USER_ID, TICKET);
+
+        // Act and Assert
+        MockMvcBuilders.standaloneSetup(userTicketController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.content().string("{\"ticket\":\"012345\"}"));
+    }
+
+
+}
