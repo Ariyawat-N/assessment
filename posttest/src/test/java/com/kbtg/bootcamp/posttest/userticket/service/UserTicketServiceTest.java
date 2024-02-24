@@ -1,8 +1,13 @@
 package com.kbtg.bootcamp.posttest.userticket.service;
 
-import com.kbtg.bootcamp.posttest.lottery.dto.LotteryResponseDto;
-import com.kbtg.bootcamp.posttest.userticket.controller.UserTicketController;
+
+import com.kbtg.bootcamp.posttest.lottery.entity.Lottery;
+import com.kbtg.bootcamp.posttest.lottery.exception.LotteryUnavailableException;
+import com.kbtg.bootcamp.posttest.lottery.repository.LotteryRepository;
 import com.kbtg.bootcamp.posttest.userticket.dto.UserTicketResponseDto;
+import com.kbtg.bootcamp.posttest.userticket.entity.UserTicket;
+import com.kbtg.bootcamp.posttest.userticket.exception.InvalidUserTicketException;
+import com.kbtg.bootcamp.posttest.userticket.repository.UserTicketRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,66 +17,148 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.aot.DisabledInAotMode;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes = {UserTicketController.class})
+@ContextConfiguration(classes = {UserTicketService.class})
 @ExtendWith(SpringExtension.class)
 @DisabledInAotMode
 public class UserTicketServiceTest {
+    public static final int AMOUNT = 1;
+    public static final int PRICE = 80;
     public static final String TICKET = "012345";
-    public static final String USER_ID = "0653214987";
-    public static final String USER_ID_INVALID = "xxxxxxxxxx";
-    @Autowired
-    private UserTicketController userTicketController;
+    public static final String USER_ID = "0881234567";
 
     @MockBean
+    private LotteryRepository lotteryRepository;
+
+    @MockBean
+    private UserTicketRepository userTicketRepository;
+
+    @Autowired
     private UserTicketService userTicketService;
 
     @Test
-    @DisplayName("should return list lottery when get by userId")
-    void testGetLotteriesByUserId() throws Exception {
+    @DisplayName("should call findById 1 times and throw exception when amount is 0")
+    void testBuyLotteries() {
+
         // Arrange
-        UserTicketResponseDto userTicketResponseDto = new UserTicketResponseDto();
-        userTicketResponseDto.setTickets(Arrays.asList("012345"));
-        userTicketResponseDto.setTotalPrice(80);
-        userTicketResponseDto.setCount(1);
-        when(userTicketService.getLotteriesByUserId(Mockito.<String>any()))
-                .thenReturn(userTicketResponseDto);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/{userId}/lotteries", USER_ID);
+        Lottery lottery = new Lottery();
+        lottery.setAmount(0);
+        lottery.setPrice(PRICE);
+        lottery.setTicket(TICKET);
+        Optional<Lottery> ofResult = Optional.of(lottery);
+        when(lotteryRepository.findById(Mockito.<String>any())).thenReturn(ofResult);
 
         // Act and Assert
-        MockMvcBuilders.standaloneSetup(userTicketController)
-                .build()
-                .perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.content().string("{\"tickets\":[\"012345\"],\"count\":1,\"totalPrice\":80}"));
+        assertThrows(LotteryUnavailableException.class, () -> userTicketService.buyLotteries(USER_ID, TICKET));
+        verify(lotteryRepository).findById(eq(TICKET));
     }
 
 
     @Test
-    @DisplayName("should return ticket when delete success")
-    void testDeleteLotteriesByUserId() throws Exception {
+    @DisplayName("should 0 ticket when repo is 0 ticket")
+    void testGetLotteriesByUserId() {
         // Arrange
-        when(userTicketService.deleteLotteriesByUserId(Mockito.<String>any(), Mockito.<String>any()))
-                .thenReturn(new LotteryResponseDto(TICKET));
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.delete("/users/{userId}/lotteries/{ticketId}",
-                USER_ID, TICKET);
+        List<UserTicket> userTicketList = new ArrayList<>();
+        when(userTicketRepository.findByUserId(Mockito.<String>any())).thenReturn(userTicketList);
 
-        // Act and Assert
-        MockMvcBuilders.standaloneSetup(userTicketController)
-                .build()
-                .perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.content().string("{\"ticket\":\"012345\"}"));
+        // Act
+        UserTicketResponseDto actualLotteriesByUserId = userTicketService.getLotteriesByUserId(USER_ID);
+
+        // Assert
+        verify(userTicketRepository).findByUserId(eq(USER_ID));
+        assertEquals(0, actualLotteriesByUserId.getTotalPrice().intValue());
+        assertEquals(0, actualLotteriesByUserId.getCount().intValue());
+        assertEquals(userTicketList, actualLotteriesByUserId.getTickets());
+    }
+
+
+    @Test
+    @DisplayName("should 1 ticket cost 80 size 1 when get by id")
+    void testGetLotteriesByUserId2() {
+        // Arrange
+        Lottery lottery = new Lottery();
+        lottery.setAmount(AMOUNT);
+        lottery.setPrice(PRICE);
+        lottery.setTicket(TICKET);
+
+        UserTicket userTicket = new UserTicket();
+        userTicket.setId(1L);
+        userTicket.setLottery(lottery);
+        userTicket.setUserId(USER_ID);
+
+        ArrayList<UserTicket> userTicketList = new ArrayList<>();
+        userTicketList.add(userTicket);
+        when(userTicketRepository.findByUserId(Mockito.<String>any())).thenReturn(userTicketList);
+
+        // Act
+        UserTicketResponseDto actualLotteriesByUserId = userTicketService.getLotteriesByUserId(USER_ID);
+
+        // Assert
+        verify(userTicketRepository).findByUserId(eq(USER_ID));
+        assertEquals(80, actualLotteriesByUserId.getTotalPrice().intValue());
+        assertEquals(1, actualLotteriesByUserId.getCount().intValue());
+        assertEquals(1, actualLotteriesByUserId.getTickets().size());
+    }
+
+
+    @Test
+    @DisplayName("should cost 170 when buy 2 lottery cost 80 and 90 ")
+    void testGetLotteriesByUserId3() {
+        // Arrange
+        Lottery lottery = new Lottery();
+        lottery.setAmount(AMOUNT);
+        lottery.setPrice(PRICE);
+        lottery.setTicket(TICKET);
+
+        UserTicket userTicket = new UserTicket();
+        userTicket.setId(1L);
+        userTicket.setLottery(lottery);
+        userTicket.setUserId(USER_ID);
+
+        Lottery lottery2 = new Lottery();
+        lottery2.setAmount(AMOUNT);
+        lottery2.setPrice(90);
+        lottery2.setTicket(USER_ID);
+
+        UserTicket userTicket2 = new UserTicket();
+        userTicket2.setId(2L);
+        userTicket2.setLottery(lottery2);
+        userTicket2.setUserId(USER_ID);
+
+        ArrayList<UserTicket> userTicketList = new ArrayList<>();
+        userTicketList.add(userTicket2);
+        userTicketList.add(userTicket);
+        when(userTicketRepository.findByUserId(Mockito.<String>any())).thenReturn(userTicketList);
+
+        // Act
+        UserTicketResponseDto actualLotteriesByUserId = userTicketService.getLotteriesByUserId(USER_ID);
+
+        // Assert
+        verify(userTicketRepository).findByUserId(eq(USER_ID));
+        assertEquals(80 + 90, actualLotteriesByUserId.getTotalPrice().intValue());
+        assertEquals(2, actualLotteriesByUserId.getCount().intValue());
+        assertEquals(2, actualLotteriesByUserId.getTickets().size());
+    }
+
+
+    @Test
+    @DisplayName("should null when delete wrong user_id and ticket number")
+    void testDeleteLotteriesByUserId() {
+        // Arrange
+        when(userTicketRepository.findByUserId(Mockito.<String>any())).thenReturn(new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(InvalidUserTicketException.class, () -> userTicketService.deleteLotteriesByUserId(USER_ID, TICKET));
     }
 
 
