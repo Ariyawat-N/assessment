@@ -43,4 +43,5 @@ public class LotteryService {
                 .map(Lottery::getTicket).
                 collect(Collectors.toList()));
     }
+
 }
