@@ -24,6 +24,7 @@ public class UserTicketService {
         this.lotteryRepository = lotteryRepository;
     }
 
+    // Buy Lottery
     public UserTicketsRequestDto buyLotteries(String userId, String ticketId) {
         UserTicket userTicket = new UserTicket();
 
@@ -48,6 +49,7 @@ public class UserTicketService {
         return new UserTicketsRequestDto(saved.getId());
     }
 
+    //Get Lotteries By UserId and Sum total Price
     public UserTicketResponseDto getLotteriesByUserId(String userId) {
         UserTicketResponseDto userTicketResponseDto = new UserTicketResponseDto();
 
@@ -56,20 +58,20 @@ public class UserTicketService {
 
         userTicketResponseDto.setTickets(tickets);
         userTicketResponseDto.setCount(tickets.size());
-        userTicketResponseDto.setTotalPrice(sumAllPrice(byUser));
+        userTicketResponseDto.setTotalPrice(sumTotalPrice(byUser));
 
         return userTicketResponseDto;
     }
 
-    private Integer sumAllPrice(List<UserTicket> byUser) {
-        Integer sum = 0;
+    private Integer sumTotalPrice(List<UserTicket> byUser) {
+        Integer totalPrice = 0;
         for (UserTicket ticket : byUser) {
-            sum += ticket.getLottery().getPrice();
+            totalPrice += ticket.getLottery().getPrice();
         }
-        return sum;
+        return totalPrice;
     }
 
-
+    //Sell Lottery
     public LotteryResponseDto deleteLotteriesByUserId(String userId, String ticketId) {
         List<UserTicket> byUser = userTicketRepository.findByUserIdAndTicketId(userId, ticketId);
         if (!byUser.isEmpty()) {

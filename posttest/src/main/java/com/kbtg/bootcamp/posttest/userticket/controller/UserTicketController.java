@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Validated
 public class UserTicketController {
-    private UserTicketService userTicketService;
+    private final UserTicketService userTicketService;
 
     public UserTicketController(UserTicketService userTicketService) {
         this.userTicketService = userTicketService;
@@ -24,11 +24,13 @@ public class UserTicketController {
     @PostMapping("/users/{userId}/lotteries/{ticketId}")
     public ResponseEntity<UserTicketsRequestDto> buyLotteries(
             @PathVariable("userId")
-            @Pattern(regexp = "^0\\d{9}$", message = "must be a number only  and start with '0'")
-            @Size(min = 10, max = 10, message = "must be a 10 digit")
+            //Regexp for only number and start with '0'
+            @Pattern(regexp = "^0\\d{9}$")
+            @Size(min = 10, max = 10)
             String userId,
             @PathVariable("ticketId")
-            @Pattern(regexp = "^\\d{6}$", message = "must be a number only")
+            //Regexp for number only
+            @Pattern(regexp = "^\\d{6}$")
             @Size(min = 6, max = 6, message = "must be a 6 digit")
             String ticketId) {
         return new ResponseEntity<>(userTicketService.buyLotteries(userId, ticketId), HttpStatus.OK);
@@ -38,8 +40,9 @@ public class UserTicketController {
     @GetMapping("/users/{userId}/lotteries")
     public ResponseEntity<UserTicketResponseDto> getLotteriesByUserId(
             @PathVariable("userId")
-            @Pattern(regexp = "^0\\d{9}$", message = "must be a number only  and start with '0'")
-            @Size(min = 10, max = 10, message = "must be a 10 digit")
+            //Regexp for only number and start with '0'
+            @Pattern(regexp = "^0\\d{9}$")
+            @Size(min = 10, max = 10)
             String userId) {
         return new ResponseEntity<>(userTicketService.getLotteriesByUserId(userId), HttpStatus.OK);
     }
@@ -49,12 +52,14 @@ public class UserTicketController {
     @DeleteMapping("/users/{userId}/lotteries/{ticketId}")
     public ResponseEntity<LotteryResponseDto> deleteLotteriesByUserId(
             @PathVariable("userId")
-            @Pattern(regexp = "^0\\d{9}$", message = "must be a number only  and start with '0'")
-            @Size(min = 10, max = 10, message = "must be a 10 digit")
+            //Regexp for only number and start with '0'
+            @Pattern(regexp = "^0\\d{9}$")
+            @Size(min = 10, max = 10)
             String userId,
             @PathVariable("ticketId")
-            @Pattern(regexp = "^\\d{6}$", message = "must be a number only")
-            @Size(min = 6, max = 6, message = "must be a 6 digit")
+            //Regexp for number only
+            @Pattern(regexp = "^\\d{6}$")
+            @Size(min = 6, max = 6)
             String ticketId) {
         return new ResponseEntity<>(userTicketService.deleteLotteriesByUserId(userId, ticketId), HttpStatus.OK);
     }
