@@ -23,7 +23,6 @@ public class LotteryController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/lotteries")
     public ResponseEntity<LotteryResponseDto> createLottery(@RequestBody LotteryRequestDto requestDto) {
-
         return new ResponseEntity<>(new LotteryResponseDto(lotteryService.createLottery(requestDto).getTicket()), HttpStatus.CREATED);
     }
 
@@ -31,7 +30,7 @@ public class LotteryController {
     //List all lotteries
     @GetMapping("/lotteries")
     public ResponseEntity<LotteryListResponseDto> listAllLotteries() {
-        return new ResponseEntity<>(lotteryService.listAllLotteries(),HttpStatus.OK);
+        return new ResponseEntity<>(lotteryService.listAllLotteries(), HttpStatus.OK);
     }
 
 }

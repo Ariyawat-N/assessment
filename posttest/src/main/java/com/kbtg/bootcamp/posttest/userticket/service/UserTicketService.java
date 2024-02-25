@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserTicketService {
@@ -64,7 +63,7 @@ public class UserTicketService {
 
     private Integer sumAllPrice(List<UserTicket> byUser) {
         Integer sum = 0;
-        for(UserTicket ticket : byUser){
+        for (UserTicket ticket : byUser) {
             sum += ticket.getLottery().getPrice();
         }
         return sum;
@@ -76,12 +75,12 @@ public class UserTicketService {
         if (!byUser.isEmpty()) {
             userTicketRepository.delete(byUser.get(0));
             Optional<Lottery> optional = lotteryRepository.findById(ticketId);
-            if(optional.isPresent()) {
+            if (optional.isPresent()) {
                 Lottery lottery = optional.get();
                 lottery.setAmount(1);
                 lotteryRepository.save(lottery);
                 return new LotteryResponseDto(ticketId);
-            }else{
+            } else {
                 throw new InvalidUserTicketException("Invalid userId or ticketId");
             }
         } else {
