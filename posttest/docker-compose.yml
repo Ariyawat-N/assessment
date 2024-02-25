@@ -3,26 +3,26 @@ version: '3'
 services:
   app:
     build: .
-    restart: always
+    restart: on-failure
     ports:
       - "8888:8888"
     networks:
       - posttest-net
     environment:
-      - DATABASE_URL=jdbc:postgresql://postgres:5431/assessment
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/lottery
     depends_on:
       - postgres
 
   postgres:
     image: postgres:16.0
     environment:
-      POSTGRES_DB: assessment
+      POSTGRES_DB: lottery
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    #    volumes:
-    #      - ./db-init.sql:/docker-entrypoint-initdb.d/init.sql
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
-      - "5431:5431"
+      - "5432:5432"
     networks:
       - posttest-net
 networks:
